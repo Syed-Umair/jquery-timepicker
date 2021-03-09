@@ -179,9 +179,7 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
       }
 
       if (selected && selected.length) {
-        var topOffset =
-          list.scrollTop() + selected.position().top - selected.outerHeight();
-        list.scrollTop(topOffset);
+        selected.get(0).scrollIntoViewIfNeeded();
       } else {
         list.scrollTop(0);
       }
@@ -371,8 +369,10 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
 
       var wrapped_list = $("<div></div>", {
         class: "ui-timepicker-wrapper",
-        tabindex: -1
+        tabindex: -1,
       });
+      wrapped_list.addClass("dropdown-menu");
+      wrapped_list.attr("data-width", "176px");
       wrapped_list.css({ display: "none", position: "absolute" }).append(list);
     }
 
@@ -452,6 +452,7 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
         row.text(timeString);
       } else {
         var row = $("<li></li>");
+        row.addClass("dropdown-list-item");
         row.addClass(
           timeInt % ONE_DAY < ONE_DAY / 2
             ? "ui-timepicker-am"
@@ -530,6 +531,8 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
         // hack: temporarily disable the focus handler
         // to deal with the fact that IE fires 'focus'
         // events asynchronously
+        e.preventDefault();
+        e.stopPropagation();
         self.off("focus.timepicker");
         self.on("focus.timepicker-ie-hack", function() {
           self.off("focus.timepicker-ie-hack");
@@ -547,7 +550,9 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
         if (tp._selectValue()) {
           self.trigger("hideTimepicker");
 
-          list.on("mouseup.timepicker click.timepicker", "li", function(e) {
+            list.on("mouseup.timepicker click.timepicker", "li", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
             list.off("mouseup.timepicker click.timepicker");
             wrapped_list.hide();
           });
@@ -562,7 +567,7 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
       // mobile Chrome fires focus events against window for some reason
       return;
     }
-    
+
     var target = $(e.target);
 
     if (
@@ -578,7 +583,7 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
     $(window).unbind(".ui-timepicker");
   }
 
-  
+
 
   /*
    *  Keyboard navigation via arrow keys
@@ -621,14 +626,10 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
               return false;
             }
           });
-          selected.addClass("ui-timepicker-selected");
+            selected.addClass("ui-timepicker-selected");
         } else if (!selected.is(":first-child")) {
           selected.removeClass("ui-timepicker-selected");
-          selected.prev().addClass("ui-timepicker-selected");
-
-          if (selected.prev().position().top < selected.outerHeight()) {
-            list.scrollTop(list.scrollTop() - selected.outerHeight());
-          }
+          selected.prev().addClass("ui-timepicker-selected").get(0).scrollIntoViewIfNeeded();
         }
 
         return false;
@@ -644,17 +645,10 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
             }
           });
 
-          selected.addClass("ui-timepicker-selected");
+            selected.addClass("ui-timepicker-selected");
         } else if (!selected.is(":last-child")) {
           selected.removeClass("ui-timepicker-selected");
-          selected.next().addClass("ui-timepicker-selected");
-
-          if (
-            selected.next().position().top + 2 * selected.outerHeight() >
-            list.outerHeight()
-          ) {
-            list.scrollTop(list.scrollTop() + selected.outerHeight());
-          }
+          selected.next().addClass("ui-timepicker-selected").get(0).scrollIntoViewIfNeeded();
         }
 
         return false;

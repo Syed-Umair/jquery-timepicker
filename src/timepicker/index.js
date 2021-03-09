@@ -54,7 +54,7 @@ class Timepicker {
     if (this.settings.useSelect) {
       this.targetEl.blur();
       return;
-    } 
+    }
 
     if (!this.list || !Timepicker.isVisible(this.list)) {
       return;
@@ -125,7 +125,7 @@ class Timepicker {
       this.selectedValue = value;
 
       const changeTimeEvent = new CustomEvent('changeTime', EVENT_DEFAULTS);
-      const changeEvent = new CustomEvent('change', 
+      const changeEvent = new CustomEvent('change',
                                 Object.assign(EVENT_DEFAULTS, { detail: 'timepicker'}));
 
       if (source == "select") {
@@ -169,7 +169,7 @@ class Timepicker {
     if (!cursor.length) {
       return true;
     }
-      
+
     var timeValue = cursor.get(0).dataset.time;
 
     // selected value found
@@ -180,7 +180,7 @@ class Timepicker {
       }
 
     }
-    
+
     if (timeValue !== null) {
       if (typeof timeValue != "string") {
         timeValue = tp._int2time(timeValue);
@@ -321,7 +321,7 @@ class Timepicker {
     } else {
       settings.scrollDefault = settings.minTime;
     }
-    
+
     if (
       typeof settings.timeFormat === "string" &&
       settings.timeFormat.match(/[gh]/)
@@ -532,26 +532,14 @@ class Timepicker {
     list.find("li").removeClass("ui-timepicker-selected");
 
     const timeValue = this.anytime2int(this._getTimeValue());
-  
+
     if (timeValue === null) {
       return;
     }
 
     const selected = this._findRow(timeValue);
     if (selected) {
-
-      const selectedRect = selected.getBoundingClientRect();
-      const listRect = list.get(0).getBoundingClientRect();
-      const topDelta = selectedRect.top - listRect.top;
-
-      if (topDelta + selectedRect.height > listRect.height || topDelta < 0) {
-        const newScroll = list.scrollTop() 
-                          + (selectedRect.top - listRect.top) 
-                          - selectedRect.height;
-
-        list.scrollTop(newScroll);
-      }
-      
+      selected.scrollIntoViewIfNeeded();
       const parsed = parseInt(selected.dataset.time);
 
       if (this.settings.forceRoundTime || parsed === timeValue) {

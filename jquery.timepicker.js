@@ -729,15 +729,7 @@
         var selected = this._findRow(timeValue);
 
         if (selected) {
-          var selectedRect = selected.getBoundingClientRect();
-          var listRect = list.get(0).getBoundingClientRect();
-          var topDelta = selectedRect.top - listRect.top;
-
-          if (topDelta + selectedRect.height > listRect.height || topDelta < 0) {
-            var newScroll = list.scrollTop() + (selectedRect.top - listRect.top) - selectedRect.height;
-            list.scrollTop(newScroll);
-          }
-
+          selected.scrollIntoViewIfNeeded();
           var parsed = parseInt(selected.dataset.time);
 
           if (this.settings.forceRoundTime || parsed === timeValue) {
@@ -1153,8 +1145,7 @@
         }
 
         if (selected && selected.length) {
-          var topOffset = list.scrollTop() + selected.position().top - selected.outerHeight();
-          list.scrollTop(topOffset);
+          selected.get(0).scrollIntoViewIfNeeded();
         } else {
           list.scrollTop(0);
         } // prevent scroll propagation
@@ -1342,6 +1333,8 @@
           "class": "ui-timepicker-wrapper",
           tabindex: -1
         });
+        wrapped_list.addClass("dropdown-menu");
+        wrapped_list.attr("data-width", "176px");
         wrapped_list.css({
           display: "none",
           position: "absolute"
@@ -1415,6 +1408,7 @@
           row.text(timeString);
         } else {
           var row = $("<li></li>");
+          row.addClass("dropdown-list-item");
           row.addClass(timeInt % ONE_DAY < ONE_DAY / 2 ? "ui-timepicker-am" : "ui-timepicker-pm");
           row.attr("data-time", roundingFunction(timeInt, settings));
           row.text(timeString);
@@ -1489,6 +1483,8 @@
           // hack: temporarily disable the focus handler
           // to deal with the fact that IE fires 'focus'
           // events asynchronously
+          e.preventDefault();
+          e.stopPropagation();
           self.off("focus.timepicker");
           self.on("focus.timepicker-ie-hack", function () {
             self.off("focus.timepicker-ie-hack");
@@ -1506,6 +1502,8 @@
           if (tp._selectValue()) {
             self.trigger("hideTimepicker");
             list.on("mouseup.timepicker click.timepicker", "li", function (e) {
+              e.preventDefault();
+              e.stopPropagation();
               list.off("mouseup.timepicker click.timepicker");
               wrapped_list.hide();
             });
@@ -1584,11 +1582,7 @@
             selected.addClass("ui-timepicker-selected");
           } else if (!selected.is(":first-child")) {
             selected.removeClass("ui-timepicker-selected");
-            selected.prev().addClass("ui-timepicker-selected");
-
-            if (selected.prev().position().top < selected.outerHeight()) {
-              list.scrollTop(list.scrollTop() - selected.outerHeight());
-            }
+            selected.prev().addClass("ui-timepicker-selected").get(0).scrollIntoViewIfNeeded();
           }
 
           return false;
@@ -1607,11 +1601,7 @@
             selected.addClass("ui-timepicker-selected");
           } else if (!selected.is(":last-child")) {
             selected.removeClass("ui-timepicker-selected");
-            selected.next().addClass("ui-timepicker-selected");
-
-            if (selected.next().position().top + 2 * selected.outerHeight() > list.outerHeight()) {
-              list.scrollTop(list.scrollTop() + selected.outerHeight());
-            }
+            selected.next().addClass("ui-timepicker-selected").get(0).scrollIntoViewIfNeeded();
           }
 
           return false;
