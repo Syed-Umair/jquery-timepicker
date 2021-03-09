@@ -179,7 +179,7 @@ import { DEFAULT_SETTINGS } from "./timepicker/defaults.js";
       }
 
       if (selected && selected.length) {
-        selected.get(0).scrollIntoViewIfNeeded();
+        selected.get(0).scrollIntoView();
       } else {
         list.scrollTop(0);
       }
